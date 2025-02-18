@@ -2,6 +2,7 @@
 package main
 
 import (
+	"flag"
     "log"
     "net/http"
 )
@@ -12,17 +13,19 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	addr := flag.String("addr", ":4000", "HTTP network address")
+    // retrieve the command line arguments
+    flag.Parse()
 
     // mux is our router
     mux := http.NewServeMux()
     // the route pattern/endpoint/URL path
     mux.HandleFunc("/", home)
 
-    log.Print("starting server on :4000")
+	log.Printf("starting server on %s", *addr)
+    err := http.ListenAndServe(*addr, mux)
+	log.Fatal(err)
 
-    // start a local web server
-    err := http.ListenAndServe(":4000", mux)
-    log.Fatal(err)
 
 }
 

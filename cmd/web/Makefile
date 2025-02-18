@@ -2,4 +2,4 @@
 .PHONY: run-app
 run-app:
 	@echo  'Running application…'
-	@go run ./cmd/web
+	@go run . -addr=":3000"
