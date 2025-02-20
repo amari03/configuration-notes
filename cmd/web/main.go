@@ -2,12 +2,15 @@
 package main
 
 import (
-	"flag"
 	"log/slog"
-   // "log"
     "net/http"
 	"os"
 )
+
+//dependency injection
+type application struct{
+    logger *slog.Logger
+}
 
 // A handler function named 'home'
 func home(w http.ResponseWriter, r *http.Request) {
@@ -15,27 +18,23 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	addr := flag.String("addr", ":4000", "HTTP network address")
-    // retrieve the command line arguments
-    flag.Parse()
-
-	// Create a new structured logger
-    logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
     // mux is our router
     mux := http.NewServeMux()
     // the route pattern/endpoint/URL path
     mux.HandleFunc("/", home)
+    logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 
+    //create an instance of application
+    app := &application{
+        logger: logger,
+    }
+    app.logger.Info("starting server :4000")
 
-	// Use the logger. Note the key:value pair
-    logger.Info("starting server ", "addr", *addr)
-    err := http.ListenAndServe(*addr, mux)
-	//log.Printf("starting server on %s", *addr)
-	// Use the logger. Note the error level
+    logger.Info("starting server :4000")
+    err := http.ListenAndServe(":4000", app.loggingMiddleware(mux))
+    // Use the logger. Note the error level
     logger.Error(err.Error())
-    os.Exit(1)
-
 
 
 }
